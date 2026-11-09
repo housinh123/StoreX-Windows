@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>StoreX | إدارة المنتجات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+            --sar: env(safe-area-inset-right);
+            --bg: #090e19;
+            --surface: #111a2a;
+            --surface2: #172338;
+            --surface3: #1d2b42;
+            --line: #293951;
+            --text: #f4f7fc;
+            --muted: #93a4bb;
+            --gold: #f5b544;
+            --gold2: #d99119;
+            --blue: #7185ff;
+            --red: #ff6474;
+            --green: #38c996;
+            --radius: 18px;
+            --shadow: 0 16px 45px #0005;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: radial-gradient(ellipse at 85% -10%,#263451 0,transparent 38%), var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-top: max(8px, var(--sat));
+            padding-bottom: calc(92px + var(--sab));
+            overflow-x: clip;
+        }
+
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: #0d1524ed;
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--line);
+            padding-top: var(--sat);
+        }
+
+        .header-inner, .main { width: min(1180px, 100%); margin: auto; padding: 14px clamp(12px, 3vw, 22px); }
+        .main { padding-top: 20px; }
+        button { -webkit-appearance: none; appearance: none; }
+        .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .brand { display: flex; align-items: center; gap: 11px; }
+        .brand-icon { width: 46px; height: 46px; border-radius: 15px; background: linear-gradient(145deg,#ffd477,var(--gold2)); display: grid; place-items: center; color: #211606; font-size: 21px; box-shadow: 0 7px 22px #f5b54430; }
+        .brand h1 { font-size: 1.15rem; font-weight: 900; }
+        .brand p { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+        .rate-panel { margin-top: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 15px; padding: 10px 12px; }
+        .rate-label { font-size: .83rem; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+        .rate-label i { color: var(--gold); }
+        .rate-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .rate-status { font-size: .68rem; color: var(--muted); max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .rate-status.loading { color: var(--gold); }
+        .rate-status.ok { color: var(--green); }
+        .rate-status.bad { color: var(--red); }
+        .rate-controls { display: flex; align-items: center; gap: 7px; }
+        .rate-controls input { width: 118px; background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; color: var(--gold); padding: 8px; text-align: center; font-weight: 800; outline: none; }
+
+        .icon-button { width: 38px; height: 38px; border-radius: 11px; background: var(--surface2); border: 1px solid var(--line); color: var(--text); display: grid; place-items: center; }
+        .header-tools { position: relative; }
+        
+        .settings-menu { position: absolute; top: 47px; left: 0; width: 220px; padding: 7px; background: var(--surface); border: 1px solid var(--line); border-radius: 15px; box-shadow: var(--shadow); z-index: 80; display: none; }
+        .settings-menu.show { display: block; animation: toastIn .16s ease; }
+        .settings-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 11px; border: 0; border-radius: 10px; background: transparent; color: var(--text); text-align: right; font-weight: 700; font-size: .84rem; }
+        .settings-menu button:active, .settings-menu button:hover { background: var(--surface2); }
+        .settings-menu button i { width: 20px; text-align: center; color: var(--gold); }
+        .settings-menu .menu-separator { height: 1px; background: var(--line); margin: 5px 3px; }
+
+        .search-wrap { position: relative; }
+        .autocomplete-list { position: absolute; top: calc(100% + 6px); right: 0; left: 0; z-index: 45; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; display: none; max-height: 290px; overflow-y: auto; }
+        .autocomplete-list.show { display: block; }
+        .autocomplete-item { width: 100%; display: flex; align-items: center; gap: 11px; padding: 11px 13px; border: 0; border-bottom: 1px solid #29395188; background: transparent; color: var(--text); text-align: right; }
+        .autocomplete-item:last-child { border-bottom: 0; }
+        .autocomplete-item.active, .autocomplete-item:active { background: var(--surface3); }
+        .autocomplete-icon { width: 35px; height: 35px; flex: 0 0 35px; border-radius: 10px; background: var(--surface2); display: grid; place-items: center; color: var(--gold); }
+        .autocomplete-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .autocomplete-copy strong { font-size: .83rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .autocomplete-copy small { font-size: .7rem; color: var(--muted); }
+        .autocomplete-empty { padding: 13px; text-align: center; color: var(--muted); font-size: .8rem; }
+
+        .main { padding-top: 18px; }
+        .dashboard { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-bottom: 18px; }
+        .stat { padding: 13px; background: linear-gradient(145deg,var(--surface2),var(--surface)); border: 1px solid var(--line); border-radius: 16px; min-width: 0; }
+        .stat small { color: var(--muted); font-size: .72rem; }
+        .stat strong { display: block; font-size: 1.2rem; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat i { color: var(--gold); margin-left: 5px; }
+
+        .toolbar { display: flex; flex-direction: column; gap: 11px; margin-bottom: 20px; }
+        .search { display: flex; align-items: center; gap: 8px; padding: 6px 7px 6px 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+        .search > i { color: var(--muted); padding: 0 5px; }
+        .search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--text); padding: 8px 0; font-size: .9rem; }
+
+        .btn { border: 1px solid transparent; border-radius: 12px; padding: 10px 13px; font-weight: 800; font-size: .82rem; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: .18s; white-space: nowrap; }
+        .btn:active, .icon-button:active { transform: scale(.97); }
+        .primary { background: linear-gradient(135deg,#ffd477,var(--gold)); color: #211606; }
+        .secondary { background: #6678f4; color: white; }
+        .soft { background: var(--surface2); border-color: var(--line); color: var(--text); }
+        .danger { background: #ff64741a; border-color: #ff647444; color: var(--red); }
+        .green { background: #38c9961a; border-color: #38c99644; color: var(--green); }
+
+        .toolbar-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+        .toolbar-actions .btn { width: 100%; min-width: 0; padding: 11px 5px; font-size: .76rem; gap: 5px; }
+
+        .category-strip { margin: 4px 0 20px; overflow: hidden; }
+        .category-strip .swiper-slide { width: auto; }
+        .cat-chip { border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 9px 17px; border-radius: 30px; font-weight: 800; font-size: .82rem; }
+        .cat-chip.active { background: var(--gold); border-color: var(--gold); color: #211606; }
+
+        .section { margin-bottom: 25px; }
+        .section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; padding: 0 2px; }
+        .section-title { font-weight: 900; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: var(--gold); }
+        .text-btn { border: 0; background: transparent; color: var(--gold); font-weight: 800; font-size: .8rem; padding: 7px; }
+
+        .product-swiper { overflow: hidden; padding: 2px 1px 12px; }
+        .product-swiper .swiper-slide { width: 184px; height: auto; display: flex; }
+        .product-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+        .product-card { width: 100%; min-width: 0; display: flex; flex-direction: column; background: linear-gradient(155deg,#19263a,var(--surface)); border: 1px solid var(--line); border-radius: 17px; overflow: hidden; box-shadow: 0 7px 20px #0002; }
+        .product-image { height: 145px; background: #0b1220; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 6px; }
+        /* عرض الصورة كاملاً بدون أي قص */
+        .product-image img { width: 100%; height: 100%; object-fit: contain; }
+        .image-empty { height: 100%; display: grid; place-items: center; color: #52647e; font-size: 2.2rem; }
+        .badge { position: absolute; top: 9px; right: 9px; padding: 4px 9px; border-radius: 20px; background: #09111ddd; border: 1px solid #ffffff20; color: #fff; font-size: .67rem; font-weight: 800; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; z-index: 2; }
+        .product-info { padding: 11px; display: flex; flex-direction: column; flex: 1; gap: 9px; }
+        .product-name { font-weight: 800; font-size: .9rem; line-height: 1.4; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .price-box { background: #0a1220a8; border: 1px solid var(--line); border-radius: 12px; padding: 8px 9px; margin-top: auto; }
+        .price-line { display: flex; align-items: center; justify-content: space-between; gap: 5px; font-size: .76rem; }
+        .price-line + .price-line { margin-top: 5px; }
+        .price-usd { color: var(--muted); }
+        .price-syp { color: var(--gold); font-weight: 900; font-size: .88rem; }
+        .product-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; padding-top: 9px; border-top: 1px solid var(--line); }
+        .action { min-width: 0; padding: 8px 2px; border-radius: 9px; background: #ffffff08; border: 1px solid var(--line); color: var(--text); font-size: .68rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+        .action span { overflow: hidden; text-overflow: ellipsis; }
+        .action.delete { color: var(--red); }
+
+        .empty-state { padding: 42px 15px; text-align: center; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); background: #ffffff04; }
+        .empty-state i { font-size: 2.5rem; color: #52647e; margin-bottom: 12px; }
+        .empty-state h3 { color: var(--text); margin-bottom: 5px; }
+
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 60;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 5px;
+            padding: 8px max(10px, var(--sar)) max(8px, var(--sab)) max(10px, var(--sal));
+            background: #111a2af5;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--line);
+            box-shadow: 0 -10px 30px #0003;
+        }
+        .nav-item {
+            min-width: 0;
+            min-height: 54px;
+            border: 1px solid transparent;
+            border-radius: 13px;
+            padding: 6px 3px;
+            background: transparent;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            font-size: .72rem;
+            font-weight: 800;
+            line-height: 1.2;
+            transition: background .18s ease, color .18s ease, border-color .18s ease;
+        }
+        .nav-item i { font-size: 1.12rem; }
+        .nav-item.active {
+            color: var(--gold);
+            background: #f5b54412;
+            border-color: #f5b54430;
+        }
+        .nav-item:active { transform: scale(.97); }
+
+        .overlay { position: fixed; inset: 0; z-index: 100; background: #020611c9; -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); display: flex; align-items: flex-end; justify-content: center; padding-top: var(--sat); opacity: 0; visibility: hidden; transition: opacity .22s, visibility .22s; overflow-y: auto; overscroll-behavior: contain; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        .modal { width: min(560px, 100%); max-height: calc(100dvh - var(--sat) - 8px); display: flex; flex-direction: column; background: #111b2c; border: 1px solid var(--line); border-bottom: 0; border-radius: 25px 25px 0 0; box-shadow: var(--shadow); transform: translateY(30px); transition: .25s; overflow: hidden; }
+        .overlay.active .modal { transform: translateY(0); }
+        .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 17px; border-bottom: 1px solid var(--line); background: #ffffff04; flex-shrink: 0; }
+        .modal-head h3 { font-size: 1rem; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+        .modal-head h3 i { color: var(--gold); }
+        .modal-body { padding: 16px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+        .modal-foot { padding: 12px 16px calc(12px + var(--sab)); border-top: 1px solid var(--line); display: flex; gap: 8px; background: #0e1726; flex-shrink: 0; }
+        .modal-foot .btn { flex: 1; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+        .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .field.full { grid-column: 1/-1; }
+        .field label { font-size: .78rem; font-weight: 800; color: #cbd6e5; }
+        .control { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 11px; background: #0a1322; color: var(--text); padding: 11px 12px; outline: none; font-size: .88rem; }
+        .control:focus { border-color: var(--gold); box-shadow: 0 0 0 3px #f5b54418; }
+        .control option { background: #111b2c; }
+        .form-caption { font-size: .75rem; color: var(--muted); padding: 8px 10px; border-radius: 9px; background: #f5b54412; color: #eac477; font-weight: 700; }
+
+        .image-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .image-choice { position: relative; border: 1px dashed #53647c; background: #0b1423; border-radius: 12px; padding: 14px 8px; text-align: center; color: var(--muted); font-size: .8rem; font-weight: 800; }
+        .image-choice i { display: block; color: var(--gold); font-size: 1.2rem; margin-bottom: 5px; }
+        .image-choice input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+        .preview-wrap { display: none; position: relative; }
+        .preview-wrap img { width: 100%; height: 155px; object-fit: contain; background: #0b1220; border-radius: 12px; border: 1px solid var(--line); }
+        .preview-remove { position: absolute; left: 8px; top: 8px; }
+
+        /* أداة القص المطورة مع Pinch Zoom ودعم التحريك بالأصابع */
+        .crop-container { position: relative; width: 100%; height: 320px; background: #000; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; touch-action: none; }
+        .crop-container canvas { cursor: crosshair; }
+        .crop-toolbar { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+
+        .report { background: #fff; color: #111; border-radius: 12px; padding: 14px; overflow: auto; max-height: 52vh; }
+        .report h2 { text-align: center; font-size: 1.1rem; }
+        .report p { text-align: center; color: #555; font-size: .78rem; margin: 5px 0 12px; }
+        .report table { width: 100%; border-collapse: collapse; font-size: .74rem; }
+        .report th, .report td { border: 1px solid #bbb; padding: 7px; text-align: center; }
+        .report th { background: #f5b544; }
+
+        .scanner { height: 260px; background: #000; border-radius: 14px; overflow: hidden; }
+        .scanner video { object-fit: cover !important; }
+
+        .toast-wrap { position: fixed; z-index: 10000; top: max(12px, calc(var(--sat) + 8px)); left: max(12px, var(--sal)); right: max(12px, var(--sar)); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; max-height: calc(100dvh - 120px - var(--sat) - var(--sab)); overflow: hidden; }
+        .toast { width: min(430px, 100%); max-width: 100%; padding: 12px 14px; border-radius: 14px; background: #1a2940; border: 1px solid #3a506e; color: #f5f7fb; box-shadow: 0 12px 35px #0007; animation: toastIn .25s ease; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+        .toast.success { border-color: #38c99688; }
+        .toast.error { border-color: #ff647488; }
+        .toast.warning { border-color: #f5b54488; }
+        .toast i { font-size: 18px; }
+        .toast.success i { color: var(--green); }
+        .toast.error i { color: var(--red); }
+        .toast.warning i { color: var(--gold); }
+
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+
+        .backup-overlay { align-items: stretch; z-index: 150; }
+        .backup-page-modal { width: 100%; max-width: none; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; transform: translateY(0); }
+        .backup-intro { text-align: center; padding: 20px 12px 24px; background: linear-gradient(145deg,#1b2b43,#101a2b); border: 1px solid var(--line); border-radius: 18px; }
+        .backup-intro > i { font-size: 2.3rem; color: var(--gold); margin-bottom: 9px; }
+        .backup-intro h2 { font-size: 1.15rem; margin-bottom: 5px; }
+        .backup-intro p { font-size: .82rem; color: var(--muted); line-height: 1.7; max-width: 440px; margin: auto; }
+        .backup-action-card { display: flex; align-items: center; gap: 11px; padding: 13px; background: var(--surface2); border: 1px solid var(--line); border-radius: 15px; }
+        .backup-action-icon { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 12px; background: #f5b54418; color: var(--gold); font-size: 1.1rem; }
+        .backup-action-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+        .backup-action-copy strong { font-size: .86rem; }
+        .backup-action-copy span { font-size: .72rem; color: var(--muted); line-height: 1.5; }
+
+        .notice-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: max(12px, var(--sat)) max(12px, var(--sar)) max(12px, var(--sab)) max(12px, var(--sal));
+            background: #020611c5;
+            -webkit-backdrop-filter: blur(9px);
+            backdrop-filter: blur(9px);
+            opacity: 0;
+            transition: opacity .18s ease;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        .notice-overlay.show { display: flex; opacity: 1; }
+        .notice-card {
+            width: min(430px, 100%);
+            max-height: calc(100dvh - max(24px, var(--sat)) - max(24px, var(--sab)));
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 auto;
+            background: linear-gradient(160deg,#19263b,#101827);
+            border: 1px solid #34445f;
+            border-radius: 22px;
+            box-shadow: 0 28px 90px #000a;
+            overflow: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            transform: translateY(12px) scale(.97);
+            transition: transform .2s ease;
+        }
+        .notice-overlay.show .notice-card { transform: translateY(0) scale(1); }
+        .notice-top { padding: clamp(15px, 4vh, 25px) 20px 12px; text-align: center; }
+        .notice-icon { width: 58px; height: 58px; border-radius: 18px; margin: 0 auto 10px; display: grid; place-items: center; font-size: 25px; background: #7185ff20; color: #91a0ff; border: 1px solid currentColor; }
+        .notice-card[data-type=success] .notice-icon { color: var(--green); background: #38c99618; }
+        .notice-card[data-type=error] .notice-icon { color: var(--red); background: #ff647418; }
+        .notice-card[data-type=warning] .notice-icon { color: var(--gold); background: #f5b54418; }
+        .notice-card[data-type=confirm] .notice-icon { color: var(--red); background: #ff647418; }
+        .notice-title { font-size: 1.12rem; font-weight: 900; margin-bottom: 8px; }
+        .notice-message { font-size: .9rem; line-height: 1.75; color: #c4d0e1; white-space: pre-wrap; overflow-wrap: anywhere; max-height: min(38vh, 280px); overflow-y: auto; }
+        .notice-input { display: none; width: 100%; min-width: 0; margin-top: 14px; background: #0b1422; border: 1px solid #40516d; border-radius: 12px; color: white; padding: 12px; outline: none; }
+        .notice-input:focus { border-color: var(--gold); }
+        .notice-actions { display: flex; gap: 9px; padding: 12px 16px max(14px, var(--sab)); background: #101827; border-top: 1px solid #34445f80; flex-shrink: 0; }
+        .notice-actions button { min-width: 0; flex: 1; border: 0; border-radius: 12px; padding: 12px 9px; font-weight: 800; }
+        .notice-ok { background: linear-gradient(135deg,var(--gold),var(--gold2)); color: #211606; }
+        .notice-cancel { background: #26354b; color: #e5edf8; }
+        .notice-ok.danger { background: linear-gradient(135deg,#ff6474,#d83e55); color: white; }
+
+        @media(min-width:800px) {
+            .overlay { align-items: center; padding: 20px; }
+            .bottom-nav { left: 50%; right: auto; width: min(560px, calc(100% - 32px)); transform: translateX(-50%); bottom: max(12px, var(--sab)); border: 1px solid var(--line); border-radius: 18px; padding: 7px; }
+            body { padding-bottom: 105px; }
+            .toolbar-actions { display: flex; }
+            .toolbar-actions .btn { width: auto; padding-inline: 12px; }
+            .modal { border-radius: 24px; border-bottom: 1px solid var(--line); max-height: 88vh; }
+            .dashboard { grid-template-columns: repeat(3,1fr); }
+            .toolbar { display: grid; grid-template-columns: 1fr auto; align-items: center; }
+            .toolbar-actions { display: flex; }
+            .toolbar-actions .btn { width: auto; }
+            .product-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+            .product-swiper .swiper-slide { width: 210px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <div class="brand-row">
+                <div class="brand">
+                    <div class="brand-icon"><i class="fa-solid fa-store"></i></div>
+                    <div>
+                        <h1>StoreX</h1>
+                        <p>إدارة منتجاتك وأسعارك بسهولة</p>
+                    </div>
+                </div>
+                <div class="header-tools">
+                    <button class="icon-button" id="settings-toggle" aria-expanded="false" onclick="toggleSettingsMenu(event)"><i class="fa-solid fa-gear"></i></button>
+                    <div class="settings-menu" id="settings-menu">
+                        <button onclick="settingsAction(openBackupPage)"><i class="fa-solid fa-cloud-arrow-down"></i> النسخ والاحتياط</button>
+                        <div class="menu-separator"></div>
+                        <button onclick="settingsAction(openCategoryManager)"><i class="fa-solid fa-tags"></i> إدارة الفئات</button>
+                        <div class="menu-separator"></div>
+                        <button onclick="settingsAction(reloadData)"><i class="fa-solid fa-rotate"></i> تحديث البيانات</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rate-panel">
+                <div class="rate-label">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    <div class="rate-meta">
+                        <span>سعر صرف الدولار</span>
+                        <span class="rate-status" id="rate-status">السعر المحفوظ</span>
+                    </div>
+                </div>
+                <div class="rate-controls">
+                    <input type="number" id="usd-rate-input" onchange="updateExchangeRate(this.value)">
+                    <button class="icon-button" onclick="fetchLiveRate()" title="جلب السعر من السوق"><i class="fa-solid fa-arrows-rotate"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="dashboard">
+            <div class="stat"><small>عدد المنتجات</small><strong id="stat-products">0</strong></div>
+            <div class="stat"><small>عدد الفئات</small><strong id="stat-categories">0</strong></div>
+            <div class="stat"><small>قيمة أسعار البيع</small><strong id="stat-total">$0</strong></div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="ابحث باسم المنتج أو الباركود..." oninput="renderSearchSuggestions()" onkeydown="handleSearchKeydown(event)">
+                <button class="text-btn" onclick="$('search-input').value='';renderProducts();$('search-suggestions').classList.remove('show')">مسح</button>
+                <div class="autocomplete-list" id="search-suggestions" role="listbox"></div>
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn soft" onclick="openScannerModal(false)"><i class="fa-solid fa-barcode"></i> مسح باركود</button>
+                <button class="btn soft" onclick="openReportModal()"><i class="fa-solid fa-file-lines"></i> التقارير</button>
+                <button class="btn primary" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> إضافة منتج</button>
+            </div>
+        </div>
+
+        <div class="swiper categoriesSwiper category-strip">
+            <div class="swiper-wrapper" id="categories-swiper-wrapper"></div>
+        </div>
+
+        <div id="products-content-area"></div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="التنقل الرئيسي">
+        <button type="button" class="nav-item active" onclick="filterCategory('all')"><i class="fa-solid fa-boxes-stacked"></i><span>المنتجات</span></button>
+        <button type="button" class="nav-item" onclick="openCategoryManager()"><i class="fa-solid fa-tags"></i><span>الفئات</span></button>
+        <button type="button" class="nav-item" onclick="openProductModal()"><i class="fa-solid fa-circle-plus"></i><span>إضافة</span></button>
+        <button type="button" class="nav-item" onclick="openBackupPage()"><i class="fa-solid fa-cloud-arrow-down"></i><span>النسخ</span></button>
+    </nav>
+
+    <!-- Modal: Product -->
+    <div class="overlay" id="product-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3 id="product-modal-title"><i class="fa-solid fa-cube"></i> إضافة منتج جديد</h3>
+                <button class="icon-button" onclick="closeModal('product-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="prod-id">
+                <div class="form-grid">
+                    <div class="field full">
+                        <label>اسم المنتج *</label>
+                        <input type="text" class="control" id="prod-name" placeholder="اكتب اسم المنتج">
+                    </div>
+                    <div class="field full">
+                        <label>الفئة</label>
+                        <select class="control" id="prod-category"></select>
+                    </div>
+                    <div class="field">
+                        <label>التكلفة بالدولار</label>
+                        <input type="number" step="any" class="control" id="prod-cost-usd" placeholder="0.00" oninput="calcCostFromUsd()">
+                    </div>
+                    <div class="field">
+                        <label>التكلفة بالليرة</label>
+                        <input type="number" step="any" class="control" id="prod-cost-syp" placeholder="0" oninput="calcCostFromSyp()">
+                    </div>
+                    <div class="field">
+                        <label>سعر البيع بالدولار *</label>
+                        <input type="number" step="any" class="control" id="prod-usd" placeholder="0.00" oninput="calcPriceFromUsd()">
+                    </div>
+                    <div class="field">
+                        <label>سعر البيع بالليرة *</label>
+                        <input type="number" step="any" class="control" id="prod-syp" placeholder="0" oninput="calcPriceFromSyp()">
+                    </div>
+                    <div class="field full">
+                        <label>الباركود</label>
+                        <div style="display:flex;gap:6px">
+                            <input type="text" class="control" id="prod-barcode" placeholder="رقم الباركود (7 خانات)">
+                            <button class="btn soft" onclick="generateBarcode()">توليد</button>
+                            <button class="btn soft" onclick="openScannerModal(true)"><i class="fa-solid fa-barcode"></i></button>
+                        </div>
+                    </div>
+                    <div class="field full">
+                        <label>صورة المنتج</label>
+                        <div class="image-choices" id="image-picker-options">
+                            <div class="image-choice">
+                                <i class="fa-solid fa-camera"></i> التقاط صورة
+                                <input type="file" accept="image/*" capture="environment" onchange="handleImageSelected(event)">
+                            </div>
+                            <div class="image-choice">
+                                <i class="fa-solid fa-image"></i> اختيار من المعرض
+                                <input type="file" accept="image/*" onchange="handleImageSelected(event)">
+                            </div>
+                        </div>
+                        <div class="preview-wrap" id="image-preview-box">
+                            <img id="prod-img-preview" alt="">
+                            <button class="btn danger preview-remove" onclick="resetImagePicker()"><i class="fa-solid fa-trash"></i> حذف الصورة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeModal('product-modal')">إلغاء</button>
+                <button class="btn primary" onclick="saveProduct()">حفظ المنتج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Advanced Crop with Pinch-Zoom & Pan -->
+    <div class="overlay" id="crop-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-crop"></i> قص وتكبير الصورة بحرية</h3>
+                <button class="icon-button" onclick="closeCropModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-container" id="crop-container">
+                    <canvas id="crop-canvas"></canvas>
+                </div>
+                <div class="form-caption">استخدم **إصبعيك** للتقريب والتكبير (Pinch Zoom) وسحب الصورة. تحكم بالنقاط الأصفر للقص الحر والأزرق للمستقيم.</div>
+                <div class="crop-toolbar">
+                    <button class="btn soft" onclick="resetCropCorners()"><i class="fa-solid fa-rotate-left"></i> إعادة ضبط</button>
+                    <button class="btn soft" onclick="rotateCropImage()"><i class="fa-solid fa-rotate-right"></i> تدوير الصورة</button>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeCropModal()">إلغاء</button>
+                <button class="btn primary" onclick="applyCropAndEnhance()">قص واعتماد الصورة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Details -->
+    <div class="overlay" id="detail-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-circle-info"></i> تفاصيل المنتج</h3>
+                <button class="icon-button" onclick="closeModal('detail-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="detail-modal-body"></div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeModal('detail-modal')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Categories -->
+    <div class="overlay" id="category-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-tags"></i> إدارة الفئات</h3>
+                <button class="icon-button" onclick="closeModal('category-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="display:flex;gap:8px">
+                    <input type="text" class="control" id="new-cat-input" placeholder="اسم الفئة الجديدة">
+                    <button class="btn primary" onclick="addCategory()">إضافة</button>
+                </div>
+                <div style="font-size:.78rem;color:var(--muted)">يمكنك حذف الفئة، وستُنقل منتجاتها إلى فئة «عام» تلقائياً.</div>
+                <div id="category-list-container" style="display:flex;flex-direction:column;gap:7px;margin-top:5px"></div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeModal('category-modal')">تم</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Backup -->
+    <div class="overlay backup-overlay" id="backup-page">
+        <div class="modal backup-page-modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-cloud-arrow-down"></i> مركز النسخ والتصدير</h3>
+                <button class="icon-button" onclick="closeBackupPage()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="gap:16px">
+                <div class="backup-intro">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h2>حماية بيانات متجرك</h2>
+                    <p>صدّر نسخة كاملة من المنتجات والفئات والصور، أو استعد بياناتك من ملف ZIP سابق دون حذف بياناتك القديمة.</p>
+                </div>
+                <div class="backup-action-card">
+                    <div class="backup-action-icon"><i class="fa-solid fa-file-zipper"></i></div>
+                    <div class="backup-action-copy">
+                        <strong>تصدير نسخة احتياطية</strong>
+                        <span>حفظ قاعدة البيانات والصور في ملف ZIP واحد.</span>
+                    </div>
+                    <button class="btn primary" onclick="confirmExportData()">تصدير ZIP</button>
+                </div>
+                <div class="backup-action-card">
+                    <div class="backup-action-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+                    <div class="backup-action-copy">
+                        <strong>استرداد ودمج نسخة احتياطية</strong>
+                        <span>دمج وتحديث البيانات دون مسح المنتجات أو الفئات القديمة.</span>
+                    </div>
+                    <button class="btn soft" onclick="triggerImport()">استرداد</button>
+                </div>
+                <div class="backup-action-card">
+                    <div class="backup-action-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                    <div class="backup-action-copy">
+                        <strong>تصدير تقرير المنتجات PDF</strong>
+                        <span>إنشاء تقرير قابل للطباعة والحفظ بصيغة PDF.</span>
+                    </div>
+                    <button class="btn soft" onclick="exportReportPdfFromBackup()">تصدير PDF</button>
+                </div>
+                <div class="backup-action-card">
+                    <div class="backup-action-icon"><i class="fa-solid fa-file-image"></i></div>
+                    <div class="backup-action-copy">
+                        <strong>تصدير تقرير المنتجات كصورة</strong>
+                        <span>حفظ قائمة المنتجات والأسعار كصورة PNG.</span>
+                    </div>
+                    <button class="btn soft" onclick="exportReportImageFromBackup()">تصدير صورة</button>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeBackupPage()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Report -->
+    <div class="overlay" id="report-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-file-lines"></i> تقرير المنتجات والأسعار</h3>
+                <button class="icon-button" onclick="closeModal('report-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="report" id="report-printable-area"></div>
+                <div style="display:flex;gap:8px">
+                    <button class="btn primary" onclick="exportReportAsPdfViaKotlin()"><i class="fa-solid fa-print"></i> طباعة / PDF</button>
+                    <button class="btn soft" onclick="exportReportAsImage()"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeModal('report-modal')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Scanner -->
+    <div class="overlay" id="scanner-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-barcode"></i> ماسح الباركود</h3>
+                <button class="icon-button" onclick="closeScannerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="scanner" id="scanner-container"></div>
+                <div class="form-caption" style="text-align:center">وجّه الكاميرا نحو الباركود حتى يتم التقاطه تلقائياً.</div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn soft" onclick="closeScannerModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notice / Alert Overlay -->
+    <div class="notice-overlay" id="notice-overlay">
+        <div class="notice-card" id="notice-card" data-type="info">
+            <div class="notice-top">
+                <div class="notice-icon" id="notice-icon"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="notice-title" id="notice-title">تنبيه</div>
+                <div class="notice-message" id="notice-message"></div>
+                <input type="text" class="notice-input" id="notice-input">
+            </div>
+            <div class="notice-actions">
+                <button class="notice-cancel" id="notice-cancel" style="display:none">إلغاء</button>
+                <button class="notice-ok" id="notice-ok">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-wrap" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        'use strict';
+        let exchangeRate = 14800, exchangeRateUpdatedAt = '', categories = ['إلكترونيات', 'إكسسوارات', 'أجهزة منزلية'], products = [];
+        let marketRateRequestFromButton = false;
+        let currentCategory = 'all', showAllCategory = false, categorySwiper = null, productSwipers = [];
+        let uploadedImageBase64 = '', originalImageName = '', scanner = null, scanFillsForm = false;
+
+        // متغيرات أداة القص المطورة للزوايا والأصابع (Zoom + Drag + Corners + Straight Mids)
+        let cropImageObj = null, cropCanvas = null, cropCtx = null;
+        let scale = 1, panX = 0, panY = 0;
+        let pinchStartDist = 0, initialScale = 1;
+        let isDraggingImage = false, dragStartX = 0, dragStartY = 0;
+        let corners = {
+            tl: { x: 10, y: 10 },
+            tr: { x: 90, y: 10 },
+            br: { x: 90, y: 90 },
+            bl: { x: 10, y: 90 }
+        };
+        let activePoint = null;
+
+        const $ = id => document.getElementById(id);
+        const number = value => { const n = Number(value); return Number.isFinite(n) ? n : 0 };
+        const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const inApp = () => typeof window.StoreXHost !== 'undefined';
+        const money = value => number(value).toLocaleString('ar-SY');
+        const productById = id => products.find(p => String(p.id) === String(id));
+
+        let noticeResolver = null, noticeInputMode = false;
+        const noticeTypes = {success:['fa-circle-check','تم بنجاح'],error:['fa-circle-xmark','حدث خطأ'],warning:['fa-triangle-exclamation','تنبيه'],info:['fa-circle-info','معلومة'],confirm:['fa-circle-question','تأكيد'],prompt:['fa-pen-to-square','إدخال بيانات']};
+        
+        function toast(message, type = 'success', duration = 2800) {
+            const node = document.createElement('div'); node.className = 'toast ' + type;
+            const icon = type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check';
+            const i = document.createElement('i'); i.className = 'fa-solid ' + icon;
+            const span = document.createElement('span'); span.textContent = String(message ?? '');
+            node.append(i, span); $('toast-container').appendChild(node);
+            setTimeout(() => { node.style.opacity = '0'; node.style.transform = 'translateY(-8px)'; setTimeout(() => node.remove(), 220) }, duration);
+        }
+
+        function hideNotice(value) {
+            const overlay = $('notice-overlay'); if (overlay.style.display === 'none') return;
+            overlay.classList.remove('show'); document.body.style.overflow = '';
+            const resolver = noticeResolver; noticeResolver = null;
+            setTimeout(() => { overlay.style.display = 'none'; $('notice-input').style.display = 'none' }, 190);
+            if (resolver) resolver(value);
+        }
+
+        function showNotice({type='info', title='', message='', okText='حسناً', cancelText='إلغاء', showCancel=false, input=false, inputValue='', placeholder='', danger=false}={}) {
+            if (noticeResolver) hideNotice(false);
+            const overlay = $('notice-overlay'), card = $('notice-card'), meta = noticeTypes[type] || noticeTypes.info;
+            card.dataset.type = type;
+            $('notice-icon').innerHTML = '<i class="fa-solid ' + meta[0] + '"></i>';
+            $('notice-title').textContent = title || meta[1];
+            $('notice-message').textContent = String(message ?? '');
+            $('notice-ok').textContent = okText;
+            $('notice-cancel').textContent = cancelText;
+            $('notice-cancel').style.display = showCancel ? 'block' : 'none';
+            $('notice-ok').classList.toggle('danger', danger || type === 'confirm');
+            const field = $('notice-input');
+            field.style.display = input ? 'block' : 'none';
+            field.value = inputValue; field.placeholder = placeholder;
+            noticeInputMode = input; overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            requestAnimationFrame(() => overlay.classList.add('show'));
+            return new Promise(resolve => { noticeResolver = resolve; setTimeout(() => input ? field.focus() : $('notice-ok').focus(), 60) });
+        }
+
+        $('notice-ok').addEventListener('click', () => hideNotice(noticeInputMode ? $('notice-input').value : true));
+        $('notice-cancel').addEventListener('click', () => hideNotice(false));
+        $('notice-overlay').addEventListener('click', event => { if (event.target === $('notice-overlay')) hideNotice(false); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && $('notice-overlay').classList.contains('show')) hideNotice(false);
+            if (e.key === 'Enter' && $('notice-overlay').classList.contains('show')) hideNotice(noticeInputMode ? $('notice-input').value : true);
+        });
+
+        function error(message) { showNotice({type:'error', message: String(message ?? 'حدث خطأ غير متوقع')}) }
+        function warning(message) { showNotice({type:'warning', message}) }
+        function info(message) { showNotice({type:'info', message}) }
+        function success(message) { toast(message, 'success') }
+        function confirmNotice(message, title='هل تريد المتابعة؟') { return showNotice({type:'confirm', title, message, okText:'نعم، متابعة', cancelText:'إلغاء', showCancel:true, danger:true}) }
+        function promptNotice(message, value='', title='إدخال البيانات') { return showNotice({type:'prompt', title, message, input:true, inputValue:value, placeholder:'اكتب هنا', okText:'حفظ', showCancel:true}) }
+        
+        function callHost(method, ...args) {
+            if (!inApp() || typeof StoreXHost[method] !== 'function') throw new Error('وظيفة التطبيق غير متاحة: ' + method);
+            return StoreXHost[method](...args);
+        }
+
+        function loadStorageData() {
+            if (!inApp()) { products = []; categories = ['إلكترونيات', 'إكسسوارات', 'أجهزة منزلية']; exchangeRate = 14800; return; }
+            try {
+                const data = JSON.parse(callHost('getData') || '{}');
+                products = Array.isArray(data.products) ? data.products : [];
+                categories = Array.isArray(data.categories) && data.categories.length ? data.categories : ['عام'];
+                if (!categories.includes('عام')) categories.unshift('عام');
+                exchangeRate = number(data.exchangeRate) || 14800;
+                exchangeRateUpdatedAt = String(data.exchangeRateUpdatedAt || '');
+            } catch (e) {
+                console.error(e); products = []; categories = ['عام']; exchangeRate = 14800; error('تعذر تحميل بيانات التطبيق');
+            }
+        }
+
+        function reloadData() { loadStorageData(); $('usd-rate-input').value = exchangeRate; renderCategoriesSwiper(); renderProducts(); updateDashboard(); }
+        document.addEventListener('DOMContentLoaded', () => { loadStorageData(); $('usd-rate-input').value = exchangeRate; renderCategoriesSwiper(); renderProducts(); updateDashboard(); setRateStatus(); fetchMarketRate(false); initCropCanvasEvents(); });
+
+        function toggleSettingsMenu(event) {
+            event?.stopPropagation(); const menu = $('settings-menu'), button = $('settings-toggle');
+            const open = !menu.classList.contains('show'); menu.classList.toggle('show', open); button.setAttribute('aria-expanded', String(open));
+        }
+        function closeSettingsMenu() { const menu = $('settings-menu'); if (menu) { menu.classList.remove('show'); $('settings-toggle')?.setAttribute('aria-expanded', 'false'); } }
+        function settingsAction(action) { closeSettingsMenu(); action(); }
+        document.addEventListener('click', event => { if (!event.target.closest('.header-tools')) closeSettingsMenu(); });
+
+        let searchSuggestionIndex = -1;
+        function renderSearchSuggestions() {
+            const input = $('search-input'), box = $('search-suggestions'); if (!input || !box) return;
+            const q = input.value.trim().toLocaleLowerCase(); searchSuggestionIndex = -1;
+            if (!q) { box.classList.remove('show'); box.innerHTML = ''; return; }
+            const matches = products.filter(p => String(p.name || '').toLocaleLowerCase().includes(q) || String(p.barcode || '').toLocaleLowerCase().includes(q) || String(p.category || '').toLocaleLowerCase().includes(q)).slice(0, 7);
+            if (!matches.length) { box.innerHTML = '<div class="autocomplete-empty">لا توجد اقتراحات مطابقة</div>'; box.classList.add('show'); return; }
+            box.innerHTML = matches.map((p, i) => `<button type="button" class="autocomplete-item" role="option" data-suggestion-id="${esc(p.id)}"><span class="autocomplete-icon"><i class="fa-solid fa-box"></i></span><span class="autocomplete-copy"><strong>${esc(p.name || 'منتج بدون اسم')}</strong><small>${esc(p.barcode || 'بدون باركود')} · ${esc(p.category || 'عام')}</small></span></button>`).join('');
+            box.classList.add('show');
+        }
+        function chooseSearchSuggestion(id) { const p = productById(id); if (!p) return; $('search-input').value = p.name || p.barcode || ''; $('search-suggestions').classList.remove('show'); renderProducts(); }
+        function handleSearchKeydown(event) {
+            const box = $('search-suggestions'); if (!box.classList.contains('show')) return;
+            const items = [...box.querySelectorAll('[data-suggestion-id]')]; if (!items.length) { if (event.key === 'Escape') box.classList.remove('show'); return; }
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                searchSuggestionIndex = (searchSuggestionIndex + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+                items.forEach((el, i) => el.classList.toggle('active', i === searchSuggestionIndex));
+                items[searchSuggestionIndex].scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'Enter' && searchSuggestionIndex >= 0) {
+                event.preventDefault(); chooseSearchSuggestion(items[searchSuggestionIndex].dataset.suggestionId);
+            } else if (event.key === 'Escape') box.classList.remove('show');
+        }
+        $('search-suggestions').addEventListener('click', event => { const item = event.target.closest('[data-suggestion-id]'); if (item) chooseSearchSuggestion(item.dataset.suggestionId); });
+        document.addEventListener('click', event => { if (!event.target.closest('.search-wrap')) $('search-suggestions')?.classList.remove('show'); });
+
+        function updateDashboard() {
+            $('stat-products').textContent = money(products.length);
+            $('stat-categories').textContent = money(categories.length);
+            const total = products.reduce((sum, p) => sum + (number(p.sellUsd) || number(p.sellSyp) / exchangeRate), 0);
+            $('stat-total').textContent = '$' + total.toFixed(2);
+        }
+
+        function updateExchangeRate(value) {
+            const rate = number(value);
+            if (!Number.isFinite(rate) || rate <= 0) { error('أدخل سعر صرف صحيحاً'); $('usd-rate-input').value = exchangeRate; return; }
+            if (!inApp()) { error('تحديث الأسعار وحفظها يتطلب تشغيل التطبيق على Windows'); $('usd-rate-input').value = exchangeRate; return; }
+
+            const previousRate = exchangeRate;
+            const updatedProducts = [];
+            try {
+                const rateResult = callHost('setExchangeRate', rate);
+                if (rateResult === false) throw new Error('تعذر حفظ سعر الصرف');
+
+                for (const original of products) {
+                    const p = { ...original };
+                    let usd = number(p.sellUsd); let costUsd = number(p.costUsd);
+                    if (usd <= 0 && number(p.sellSyp) > 0 && previousRate > 0) { usd = number(p.sellSyp) / previousRate; p.sellUsd = Number(usd.toFixed(2)); }
+                    if (costUsd <= 0 && number(p.costSyp) > 0 && previousRate > 0) { costUsd = number(p.costSyp) / previousRate; p.costUsd = Number(costUsd.toFixed(2)); }
+                    if (usd > 0) p.sellSyp = Math.round(usd * rate);
+                    if (costUsd > 0) p.costSyp = Math.round(costUsd * rate);
+
+                    const payload = { id: p.id, name: p.name || '', category: p.category || 'عام', costUsd: number(p.costUsd), costSyp: number(p.costSyp), sellUsd: number(p.sellUsd), sellSyp: number(p.sellSyp), barcode: p.barcode || '', image: p.image || '' };
+                    const result = number(callHost('saveProduct', JSON.stringify(payload)));
+                    if (result <= 0) throw new Error('تعذر تحديث المنتج: ' + (p.name || p.id));
+                    updatedProducts.push(p);
+                }
+                exchangeRate = rate;
+                products = products.map(p => updatedProducts.find(x => String(x.id) === String(p.id)) || p);
+                $('usd-rate-input').value = String(rate);
+                renderProducts(); updateDashboard();
+                toast('تم تحديث سعر الصرف وأسعار ' + updatedProducts.length + ' منتج بنجاح');
+            } catch (e) {
+                console.error('Exchange-rate update failed:', e);
+                exchangeRate = previousRate; $('usd-rate-input').value = previousRate;
+                try { reloadData() } catch (reloadError) { console.error(reloadError) }
+                error('تعذر إكمال تحديث الأسعار: ' + (e.message || 'خطأ غير معروف'));
+            }
+        }
+
+        function setRateStatus(message = null, kind = '') {
+            const node = $('rate-status'); if (!node) return;
+            if (message) { node.textContent = message; node.className = 'rate-status ' + kind; return; }
+            if (exchangeRateUpdatedAt) {
+                const date = new Date(exchangeRateUpdatedAt);
+                node.textContent = 'آخر تحديث سوق: ' + (Number.isNaN(date.getTime()) ? exchangeRateUpdatedAt : date.toLocaleString('ar-SY'));
+                node.className = 'rate-status ok';
+            } else { node.textContent = 'السعر المحفوظ · بانتظار تحديث السوق'; node.className = 'rate-status'; }
+        }
+
+        function fetchMarketRate(fromButton = false) {
+            if (!inApp()) { setRateStatus('يتطلب الاتصال من تطبيق Windows', 'bad'); if (fromButton) error('جلب سعر السوق متاح داخل تطبيق Windows فقط'); return; }
+            marketRateRequestFromButton = !!fromButton;
+            setRateStatus('جارٍ جلب سعر السوق...', 'loading');
+            try { callHost('fetchMarketRate'); }
+            catch (e) { setRateStatus('تعذر بدء التحديث', 'bad'); if (fromButton) error('تعذر الاتصال بمصدر سعر الصرف: ' + e.message); }
+        }
+        function fetchLiveRate() { fetchMarketRate(true) }
+
+        window.onMarketRateUpdated = function(rate, updatedAt) {
+            const value = number(rate); if (value <= 0) { window.onMarketRateFailed('وصل سعر غير صالح من المصدر'); return; }
+            loadStorageData(); exchangeRate = value; exchangeRateUpdatedAt = String(updatedAt || exchangeRateUpdatedAt || '');
+            $('usd-rate-input').value = String(Math.round(value)); renderProducts(); updateDashboard(); setRateStatus();
+            if (marketRateRequestFromButton) toast('تم تحديث سعر السوق وإعادة تسعير المنتجات بنجاح');
+            marketRateRequestFromButton = false;
+        };
+        window.onMarketRateFailed = function(message) {
+            setRateStatus('تعذر التحديث · السعر السابق محفوظ', 'bad');
+            if (marketRateRequestFromButton) error(message || 'تعذر جلب سعر السوق، تم الاحتفاظ بالسعر السابق');
+            else toast('تعذر جلب سعر السوق. استمر العمل بالسعر المحفوظ', 'warning', 4200);
+            marketRateRequestFromButton = false;
+        };
+
+        function getImageUrl(name) { if (!name || !inApp()) return ''; try { return callHost('imageUrl', String(name)) || '' } catch (e) { console.error(e); return '' } }
+        function productImage(product) {
+            const url = getImageUrl(product.image);
+            return url ? `<img src="${esc(url)}" alt="${esc(product.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="image-empty" style="display:none"><i class="fa-regular fa-image"></i></div>` : `<div class="image-empty"><i class="fa-regular fa-image"></i></div>`;
+        }
+
+        // --- نظام القص المطور المتقدم (Pinch-Zoom + Drag + Corners) ---
+        function handleImageSelected(event) {
+            const file = event.target.files?.[0]; if (!file) return;
+            if (!file.type.startsWith('image/')) { error('الملف المحدد ليس صورة'); event.target.value = ''; return; }
+            if (file.size > 20 * 1024 * 1024) { error('حجم الصورة يجب ألا يتجاوز 20 ميغابايت'); event.target.value = ''; return; }
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = new Image();
+                img.onload = () => {
+                    cropImageObj = img;
+                    scale = 1; panX = 0; panY = 0;
+                    resetCropCorners();
+                    openModal('crop-modal');
+                    setTimeout(() => drawCropCanvas(), 50);
+                };
+                img.src = e.target.result;
+                event.target.value = '';
+            };
+            reader.onerror = () => error('تعذرت قراءة الصورة');
+            reader.readAsDataURL(file);
+        }
+
+        function resetCropCorners() {
+            scale = 1; panX = 0; panY = 0;
+            corners = {
+                tl: { x: 10, y: 10 },
+                tr: { x: 90, y: 10 },
+                br: { x: 90, y: 90 },
+                bl: { x: 10, y: 90 }
+            };
+            drawCropCanvas();
+        }
+
+        function initCropCanvasEvents() {
+            cropCanvas = $('crop-canvas');
+            if (!cropCanvas) return;
+            cropCtx = cropCanvas.getContext('2d');
+
+            const getDistance = (t1, t2) => Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+
+            const getCanvasPos = (clientX, clientY) => {
+                const rect = cropCanvas.getBoundingClientRect();
+                return {
+                    x: ((clientX - rect.left) / rect.width) * 100,
+                    y: ((clientY - rect.top) / rect.height) * 100
+                };
+            };
+
+            const onStart = e => {
+                if (!cropImageObj) return;
+                if (e.touches && e.touches.length === 2) {
+                    pinchStartDist = getDistance(e.touches[0], e.touches[1]);
+                    initialScale = scale;
+                    activePoint = null;
+                    return;
+                }
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const pos = getCanvasPos(clientX, clientY);
+
+                const midTop = { x: (corners.tl.x + corners.tr.x) / 2, y: (corners.tl.y + corners.tr.y) / 2 };
+                const midRight = { x: (corners.tr.x + corners.br.x) / 2, y: (corners.tr.y + corners.br.y) / 2 };
+                const midBottom = { x: (corners.br.x + corners.bl.x) / 2, y: (corners.br.y + corners.bl.y) / 2 };
+                const midLeft = { x: (corners.bl.x + corners.tl.x) / 2, y: (corners.bl.y + corners.tl.y) / 2 };
+
+                const allPoints = {
+                    tl: corners.tl, tr: corners.tr, br: corners.br, bl: corners.bl,
+                    mTop: midTop, mRight: midRight, mBottom: midBottom, mLeft: midLeft
+                };
+
+                let closest = null;
+                let minDist = 18;
+                for (let key in allPoints) {
+                    const dist = Math.hypot(allPoints[key].x - pos.x, allPoints[key].y - pos.y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = key;
+                    }
+                }
+
+                if (closest) {
+                    activePoint = closest;
+                } else {
+                    isDraggingImage = true;
+                    dragStartX = clientX - panX;
+                    dragStartY = clientY - panY;
+                }
+            };
+
+            const onMove = e => {
+                if (!cropImageObj) return;
+                e.preventDefault();
+
+                if (e.touches && e.touches.length === 2) {
+                    const dist = getDistance(e.touches[0], e.touches[1]);
+                    if (pinchStartDist > 0) {
+                        scale = Math.max(1, Math.min(4, initialScale * (dist / pinchStartDist)));
+                        drawCropCanvas();
+                    }
+                    return;
+                }
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                if (isDraggingImage) {
+                    panX = clientX - dragStartX;
+                    panY = clientY - dragStartY;
+                    drawCropCanvas();
+                    return;
+                }
+
+                if (!activePoint) return;
+                const pos = getCanvasPos(clientX, clientY);
+                const nx = Math.max(0, Math.min(100, pos.x));
+                const ny = Math.max(0, Math.min(100, pos.y));
+
+                if (activePoint === 'mTop') {
+                    const dx = nx - (corners.tl.x + corners.tr.x) / 2;
+                    const dy = ny - (corners.tl.y + corners.tr.y) / 2;
+                    corners.tl.x += dx; corners.tl.y += dy;
+                    corners.tr.x += dx; corners.tr.y += dy;
+                } else if (activePoint === 'mRight') {
+                    const dx = nx - (corners.tr.x + corners.br.x) / 2;
+                    const dy = ny - (corners.tr.y + corners.br.y) / 2;
+                    corners.tr.x += dx; corners.tr.y += dy;
+                    corners.br.x += dx; corners.br.y += dy;
+                } else if (activePoint === 'mBottom') {
+                    const dx = nx - (corners.br.x + corners.bl.x) / 2;
+                    const dy = ny - (corners.br.y + corners.bl.y) / 2;
+                    corners.br.x += dx; corners.br.y += dy;
+                    corners.bl.x += dx; corners.bl.y += dy;
+                } else if (activePoint === 'mLeft') {
+                    const dx = nx - (corners.bl.x + corners.tl.x) / 2;
+                    const dy = ny - (corners.bl.y + corners.tl.y) / 2;
+                    corners.bl.x += dx; corners.bl.y += dy;
+                    corners.tl.x += dx; corners.tl.y += dy;
+                } else {
+                    corners[activePoint].x = nx;
+                    corners[activePoint].y = ny;
+                }
+
+                drawCropCanvas();
+            };
+
+            const onEnd = () => {
+                activePoint = null;
+                isDraggingImage = false;
+                pinchStartDist = 0;
+            };
+
+            cropCanvas.addEventListener('mousedown', onStart);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+
+            cropCanvas.addEventListener('touchstart', onStart, {passive: false});
+            window.addEventListener('touchmove', onMove, {passive: false});
+            window.addEventListener('touchend', onEnd);
+        }
+
+        function drawCropCanvas() {
+            if (!cropImageObj || !cropCtx) return;
+            const container = $('crop-container');
+            cropCanvas.width = container.clientWidth || 300;
+            cropCanvas.height = container.clientHeight || 300;
+
+            cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+
+            const hRatio = cropCanvas.width / cropImageObj.width;
+            const vRatio = cropCanvas.height / cropImageObj.height;
+            const baseRatio = Math.min(hRatio, vRatio);
+            const ratio = baseRatio * scale;
+            const dw = cropImageObj.width * ratio;
+            const dh = cropImageObj.height * ratio;
+            const dx = (cropCanvas.width - dw) / 2 + panX;
+            const dy = (cropCanvas.height - dh) / 2 + panY;
+
+            cropCtx.drawImage(cropImageObj, dx, dy, dw, dh);
+
+            cropCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+
+            const toPx = c => ({
+                x: dx + (c.x / 100) * dw,
+                y: dy + (c.y / 100) * dh
+            });
+
+            const ptl = toPx(corners.tl);
+            const ptr = toPx(corners.tr);
+            const pbr = toPx(corners.br);
+            const pbl = toPx(corners.bl);
+
+            cropCtx.save();
+            cropCtx.beginPath();
+            cropCtx.moveTo(ptl.x, ptl.y);
+            cropCtx.lineTo(ptr.x, ptr.y);
+            cropCtx.lineTo(pbr.x, pbr.y);
+            cropCtx.lineTo(pbl.x, pbl.y);
+            cropCtx.closePath();
+            cropCtx.clip();
+            cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+            cropCtx.drawImage(cropImageObj, dx, dy, dw, dh);
+            cropCtx.restore();
+
+            cropCtx.strokeStyle = '#f5b544';
+            cropCtx.lineWidth = 3;
+            cropCtx.beginPath();
+            cropCtx.moveTo(ptl.x, ptl.y);
+            cropCtx.lineTo(ptr.x, ptr.y);
+            cropCtx.lineTo(pbr.x, pbr.y);
+            cropCtx.lineTo(pbl.x, pbl.y);
+            cropCtx.closePath();
+            cropCtx.stroke();
+
+            const mTop = toPx({ x: (corners.tl.x + corners.tr.x) / 2, y: (corners.tl.y + corners.tr.y) / 2 });
+            const mRight = toPx({ x: (corners.tr.x + corners.br.x) / 2, y: (corners.tr.y + corners.br.y) / 2 });
+            const mBottom = toPx({ x: (corners.br.x + corners.bl.x) / 2, y: (corners.br.y + corners.bl.y) / 2 });
+            const mLeft = toPx({ x: (corners.bl.x + corners.tl.x) / 2, y: (corners.bl.y + corners.tl.y) / 2 });
+
+            [ptl, ptr, pbr, pbl].forEach(p => {
+                cropCtx.beginPath();
+                cropCtx.arc(p.x, p.y, 11, 0, Math.PI * 2);
+                cropCtx.fillStyle = '#f5b544';
+                cropCtx.fill();
+                cropCtx.lineWidth = 2;
+                cropCtx.strokeStyle = '#ffffff';
+                cropCtx.stroke();
+            });
+
+            [mTop, mRight, mBottom, mLeft].forEach(p => {
+                cropCtx.beginPath();
+                cropCtx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+                cropCtx.fillStyle = '#7185ff';
+                cropCtx.fill();
+                cropCtx.lineWidth = 2;
+                cropCtx.strokeStyle = '#ffffff';
+                cropCtx.stroke();
+            });
+        }
+
+        function rotateCropImage() {
+            if (!cropImageObj) return;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = cropImageObj.height;
+            canvas.height = cropImageObj.width;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.drawImage(cropImageObj, -cropImageObj.width / 2, -cropImageObj.height / 2);
+            const rotatedImg = new Image();
+            rotatedImg.onload = () => {
+                cropImageObj = rotatedImg;
+                resetCropCorners();
+            };
+            rotatedImg.src = canvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        function closeCropModal() {
+            closeModal('crop-modal');
+            cropImageObj = null;
+        }
+
+        function applyCropAndEnhance() {
+            if (!cropImageObj) { closeCropModal(); return; }
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const origW = cropImageObj.width;
+            const origH = cropImageObj.height;
+
+            const minX = Math.min(corners.tl.x, corners.bl.x) / 100 * origW;
+            const maxX = Math.max(corners.tr.x, corners.br.x) / 100 * origW;
+            const minY = Math.min(corners.tl.y, corners.tr.y) / 100 * origH;
+            const maxY = Math.max(corners.bl.y, corners.br.y) / 100 * origH;
+
+            const w = Math.max(100, maxX - minX);
+            const h = Math.max(100, maxY - minY);
+
+            canvas.width = w;
+            canvas.height = h;
+
+            ctx.filter = 'contrast(1.25) saturate(1.1)';
+            ctx.drawImage(cropImageObj, minX, minY, w, h, 0, 0, w, h);
+
+            uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.9);
+            $('prod-img-preview').src = uploadedImageBase64;
+            $('image-preview-box').style.display = 'block';
+            $('image-picker-options').style.display = 'none';
+
+            closeCropModal();
+            toast('تمت معالجة وإدراج الصورة بنجاح');
+        }
+
+        function resetImagePicker() {
+            uploadedImageBase64 = ''; originalImageName = ''; $('prod-img-preview').src = ''; $('image-preview-box').style.display = 'none'; $('image-picker-options').style.display = 'grid';
+            document.querySelectorAll('#image-picker-options input').forEach(input => input.value = '');
+        }
+
+        function saveImageToWindows(value) {
+            if (!value) return '';
+            if (!String(value).startsWith('data:image/')) return String(value);
+            const name = callHost('saveImage', String(value)); if (!name) throw new Error('فشل حفظ الصورة في الجهاز'); return name;
+        }
+
+        function destroySwipers() { productSwipers.forEach(s => { if (s && !s.destroyed) s.destroy(true, true) }); productSwipers = []; }
+
+        function renderCategoriesSwiper() {
+            const wrapper = $('categories-swiper-wrapper');
+            const items = ['all', ...categories];
+            wrapper.innerHTML = items.map(cat => `<div class="swiper-slide"><button class="cat-chip ${currentCategory===cat?'active':''}" data-action="filter" data-category="${esc(cat)}">${cat==='all'?'الكل':esc(cat)}</button></div>`).join('');
+            $('prod-category').innerHTML = categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+            if (categorySwiper && !categorySwiper.destroyed) categorySwiper.destroy(true, true);
+            if (typeof Swiper !== 'undefined') categorySwiper = new Swiper('.categoriesSwiper', { slidesPerView: 'auto', spaceBetween: 8, freeMode: true, watchOverflow: true });
+        }
+
+        function filterCategory(category) { currentCategory = category; showAllCategory = false; renderCategoriesSwiper(); renderProducts(); document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 0)) }
+        function viewAllCategory(category) { currentCategory = category; showAllCategory = true; renderCategoriesSwiper(); renderProducts() }
+
+        function buildProductCard(p) {
+            const usd = number(p.sellUsd) > 0 ? number(p.sellUsd) : number(p.sellSyp) / exchangeRate;
+            const syp = number(p.sellSyp) > 0 ? number(p.sellSyp) : Math.round(usd * exchangeRate);
+            return `<article class="product-card"><div class="product-image">${productImage(p)}<span class="badge">${esc(p.category || 'عام')}</span></div><div class="product-info"><h3 class="product-name">${esc(p.name)}</h3><div class="price-box"><div class="price-line"><span class="price-usd">السعر بالدولار</span><strong>$${usd.toFixed(2)}</strong></div><div class="price-line"><span class="price-usd">السعر بالليرة</span><strong class="price-syp">${money(syp)} ل.س</strong></div></div><div class="product-actions"><button class="action" data-action="details" data-id="${esc(p.id)}"><i class="fa-regular fa-eye"></i><span>تفاصيل</span></button><button class="action" data-action="edit" data-id="${esc(p.id)}"><i class="fa-solid fa-pen"></i><span>تعديل</span></button><button class="action delete" data-action="delete" data-id="${esc(p.id)}"><i class="fa-regular fa-trash-can"></i><span>حذف</span></button></div></div></article>`;
+        }
+
+        function renderProducts() {
+            const area = $('products-content-area'); destroySwipers();
+            const q = $('search-input').value.trim().toLocaleLowerCase();
+            const found = products.filter(p => String(p.name || '').toLocaleLowerCase().includes(q) || String(p.barcode || '').toLocaleLowerCase().includes(q));
+            const visible = found.filter(p => currentCategory === 'all' || p.category === currentCategory);
+            if (!visible.length) { area.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><h3>${q?'لا توجد نتائج مطابقة':'لا توجد منتجات بعد'}</h3><p>${q?'جرّب كلمة بحث أخرى أو امسح الباركود.':'أضف أول منتج إلى متجرك لتبدأ بإدارة المخزون.'}</p></div>`; updateDashboard(); return; }
+            const cats = currentCategory === 'all' ? [...new Set([...categories, ...visible.map(p => p.category || 'عام')])] : [currentCategory];
+            let output = '';
+            cats.forEach((cat) => {
+                const list = visible.filter(p => (p.category || 'عام') === cat); if (!list.length) return;
+                const grid = currentCategory !== 'all' && showAllCategory;
+                output += `<section class="section"><div class="section-head"><h2 class="section-title"><i class="fa-solid fa-folder-open"></i>${esc(cat)} <span style="color:var(--muted);font-size:.75rem">(${list.length})</span></h2>${currentCategory==='all'?`<button class="text-btn" data-action="view-all" data-category="${esc(cat)}">عرض الكل <i class="fa-solid fa-arrow-left"></i></button>`:`<button class="text-btn" data-action="back">رجوع <i class="fa-solid fa-arrow-left"></i></button>`}</div>`;
+                if (grid) output += '<div class="product-grid">' + list.map(buildProductCard).join('') + '</div>';
+                else output += `<div class="swiper product-swiper"><div class="swiper-wrapper">${list.map(p => `<div class="swiper-slide">${buildProductCard(p)}</div>`).join('')}</div></div>`;
+                output += '</section>';
+            });
+            area.innerHTML = output;
+            if (typeof Swiper !== 'undefined') requestAnimationFrame(() => area.querySelectorAll('.product-swiper').forEach(el => productSwipers.push(new Swiper(el, { slidesPerView: 'auto', spaceBetween: 11, freeMode: true, watchOverflow: true }))));
+            updateDashboard();
+        }
+
+        document.addEventListener('click', event => {
+            const b = event.target.closest('[data-action]'); if (!b) return;
+            const { action, id, category } = b.dataset;
+            if (action === 'filter') filterCategory(category);
+            if (action === 'view-all') viewAllCategory(category);
+            if (action === 'back') filterCategory('all');
+            if (action === 'details') showProductDetails(id);
+            if (action === 'edit') openProductModal(id);
+            if (action === 'delete') confirmDeleteProduct(id);
+        });
+
+        function calcCostFromUsd() { const v = number($('prod-cost-usd').value); $('prod-cost-syp').value = v > 0 ? Math.round(v * exchangeRate) : ''; }
+        function calcCostFromSyp() { const v = number($('prod-cost-syp').value); $('prod-cost-usd').value = v > 0 ? (v / exchangeRate).toFixed(2) : ''; }
+        function calcPriceFromUsd() { const v = number($('prod-usd').value); $('prod-syp').value = v > 0 ? Math.round(v * exchangeRate) : ''; }
+        function calcPriceFromSyp() { const v = number($('prod-syp').value); $('prod-usd').value = v > 0 ? (v / exchangeRate).toFixed(2) : ''; }
+
+        function openProductModal(id = null) {
+            document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 2));
+            renderCategoriesSwiper();
+            $('product-modal-title').innerHTML = id === null ? '<i class="fa-solid fa-cube"></i> إضافة منتج جديد' : '<i class="fa-solid fa-pen"></i> تعديل بيانات المنتج';
+            ['prod-id','prod-name','prod-cost-usd','prod-cost-syp','prod-usd','prod-syp','prod-barcode'].forEach(k => $(k).value = '');
+            resetImagePicker();
+            if (id !== null) {
+                const p = productById(id); if (!p) { error('المنتج غير موجود'); return; }
+                $('prod-id').value = p.id; $('prod-name').value = p.name || ''; $('prod-category').value = p.category || categories[0];
+                $('prod-cost-usd').value = p.costUsd || ''; $('prod-cost-syp').value = p.costSyp || (p.costUsd ? Math.round(p.costUsd * exchangeRate) : '');
+                $('prod-usd').value = p.sellUsd || ''; $('prod-syp').value = p.sellSyp || (p.sellUsd ? Math.round(p.sellUsd * exchangeRate) : '');
+                $('prod-barcode').value = p.barcode || ''; originalImageName = p.image || ''; uploadedImageBase64 = originalImageName;
+                if (originalImageName) { const url = getImageUrl(originalImageName); if (url) { $('prod-img-preview').src = url; $('image-preview-box').style.display = 'block'; $('image-picker-options').style.display = 'none'; } else resetImagePicker() }
+            }
+            openModal('product-modal');
+        }
+
+        function saveProduct() {
+            if (!inApp()) { error('حفظ البيانات متاح داخل تطبيق Windows المتصل بقاعدة SQLite.'); return; }
+            const id = $('prod-id').value, name = $('prod-name').value.trim(), category = $('prod-category').value || 'عام';
+            const costUsd = number($('prod-cost-usd').value); let sellUsd = number($('prod-usd').value), sellSyp = number($('prod-syp').value);
+            const barcode = $('prod-barcode').value.trim();
+            if (!name) { error('يرجى إدخال اسم المنتج'); $('prod-name').focus(); return; }
+            if (sellUsd <= 0 && sellSyp <= 0) { error('أدخل سعر البيع بالدولار أو بالليرة'); return; }
+            if (sellUsd > 0 && sellSyp <= 0) sellSyp = Math.round(sellUsd * exchangeRate);
+            if (sellSyp > 0 && sellUsd <= 0) sellUsd = sellSyp / exchangeRate;
+            try {
+                const image = saveImageToWindows(uploadedImageBase64);
+                const product = { id: id ? Number(id) : 0, name, category, costUsd, sellUsd, sellSyp, barcode, image };
+                const result = number(callHost('saveProduct', JSON.stringify(product)));
+                if (result <= 0) { error('لم يتم حفظ المنتج في قاعدة البيانات'); return; }
+                closeModal('product-modal'); reloadData(); toast(id ? 'تم تحديث المنتج بنجاح' : 'تمت إضافة المنتج بنجاح');
+            } catch (e) { console.error(e); error(e.message || 'حدث خطأ أثناء حفظ المنتج'); }
+        }
+
+        // توليد باركود مكون من 7 خانات فقط
+        function generateBarcode() {
+            const rand7 = Math.floor(1000000 + Math.random() * 9000000);
+            $('prod-barcode').value = String(rand7);
+            toast('تم توليد رقم باركود من 7 خانات');
+        }
+
+        function showProductDetails(id) {
+            const p = productById(id); if (!p) return;
+            const usd = number(p.sellUsd) > 0 ? number(p.sellUsd) : number(p.sellSyp) / exchangeRate, syp = number(p.sellSyp) > 0 ? number(p.sellSyp) : Math.round(usd * exchangeRate), img = getImageUrl(p.image);
+            $('detail-modal-body').innerHTML = `${img?`<img src="${esc(img)}" style="width:100%;height:190px;object-fit:contain;background:#0b1220;border-radius:14px" alt="">`:''}<div style="text-align:center"><h2 style="font-size:1.2rem">${esc(p.name)}</h2><span class="form-caption" style="display:inline-block;margin-top:7px">${esc(p.category||'عام')}</span></div><div class="price-box"><div class="price-line"><span>تكلفة الشراء</span><b>$${number(p.costUsd).toFixed(2)}</b></div><div class="price-line"><span>سعر البيع بالدولار</span><b>$${usd.toFixed(2)}</b></div><div class="price-line"><span>سعر البيع بالليرة</span><b class="price-syp">${money(syp)} ل.س</b></div><div class="price-line"><span>الباركود</span><b>${esc(p.barcode||'—')}</b></div></div><button class="btn primary" onclick="closeModal('detail-modal');openProductModal('${esc(p.id)}')"><i class="fa-solid fa-pen"></i> تعديل المنتج</button>`;
+            openModal('detail-modal');
+        }
+
+        async function confirmDeleteProduct(id) {
+            const p = productById(id); if (!p) return;
+            const yes = await confirmNotice(`سيتم حذف المنتج «${p.name}» نهائياً من قاعدة البيانات. لا يمكن التراجع عن هذه العملية.`, 'تأكيد حذف المنتج'); if (!yes) return;
+            try { if (callHost('deleteProduct', Number(id))) { reloadData(); toast('تم حذف المنتج', 'success') } else error('تعذر حذف المنتج') } catch (e) { error(e.message) }
+        }
+
+        function openCategoryManager() { document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 1)); renderCategoryList(); openModal('category-modal') }
+        function renderCategoryList() {
+            $('category-list-container').innerHTML = categories.map(c => `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--line);border-radius:12px"><strong>${esc(c)}</strong>${c==='عام'?' <small style="color:var(--muted)">افتراضية</small>':`<div style="display:flex;gap:6px"><button class="icon-button" style="color:var(--gold)" data-cat-edit="${esc(c)}"><i class="fa-solid fa-pen"></i></button><button class="icon-button" style="color:var(--red)" data-cat-delete="${esc(c)}"><i class="fa-solid fa-trash"></i></button></div>`}</div>`).join('');
+        }
+        $('category-list-container').addEventListener('click', e => {
+            const edit = e.target.closest('[data-cat-edit]'); const del = e.target.closest('[data-cat-delete]');
+            if (edit) editCategory(edit.dataset.catEdit);
+            if (del) confirmDeleteCategory(del.dataset.catDelete);
+        });
+
+        async function editCategory(oldName) {
+            const next = await promptNotice('اكتب الاسم الجديد للفئة:', oldName, 'تعديل اسم الفئة');
+            if (next === false || next === null) return;
+            const name = String(next).trim(); if (!name || name === oldName) return;
+            if (categories.some(c => c.toLowerCase() === name.toLowerCase())) { error('هذا الاسم موجود مسبقاً'); return; }
+            try {
+                if (callHost('updateCategory', oldName, name)) {
+                    if (currentCategory === oldName) currentCategory = name;
+                    reloadData(); renderCategoryList(); toast('تم تعديل اسم الفئة');
+                } else error('تعذر تعديل الفئة');
+            } catch (e) { error(e.message); }
+        }
+
+        function addCategory() {
+            const input = $('new-cat-input'), name = input.value.trim(); if (!name) { error('أدخل اسم الفئة'); return; }
+            if (categories.some(c => c.toLowerCase() === name.toLowerCase())) { error('هذه الفئة موجودة مسبقاً'); return; }
+            try {
+                if (callHost('saveCategory', name)) { input.value = ''; reloadData(); renderCategoryList(); toast('تمت إضافة الفئة'); }
+                else error('تعذرت إضافة الفئة');
+            } catch (e) { error(e.message); }
+        }
+
+        async function confirmDeleteCategory(category) {
+            if (category === 'عام') { error('لا يمكن حذف الفئة العامة'); return; }
+            const yes = await confirmNotice(`سيتم نقل جميع منتجات فئة «${category}» إلى فئة «عام»، ثم حذف الفئة. هل تريد المتابعة؟`, 'تأكيد حذف الفئة'); if (!yes) return;
+            try {
+                if (callHost('deleteCategory', category)) {
+                    if (currentCategory === category) currentCategory = 'all';
+                    reloadData(); renderCategoryList(); toast('تم حذف الفئة ونقل منتجاتها إلى عام');
+                } else error('تعذر حذف الفئة');
+            } catch (e) { error(e.message); }
+        }
+
+        function openBackupPage() { openModal('backup-page'); document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 3)) }
+        function closeBackupPage() { closeModal('backup-page'); document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 0)) }
+        
+        function confirmExportData() {
+            if (!inApp()) { error('التصدير متاح داخل تطبيق Windows'); return; }
+            const name = 'MyStore_Backup_' + new Date().toISOString().slice(0, 10) + '.zip';
+            try { callHost('exportBackup', name); toast('اختر مكان حفظ ملف النسخة الاحتياطية'); } catch (e) { error(e.message || 'تعذر بدء التصدير'); }
+        }
+
+        async function triggerImport() {
+            if (!inApp()) { error('الاستيراد متاح داخل تطبيق Windows'); return; }
+            const yes = await confirmNotice('سيتم دمج وتحديث المنتجات والفئات من النسخة الاحتياطية دون مسح بياناتك الحالية. هل تريد المتابعة؟', 'تأكيد استرداد ودمج النسخة'); if (!yes) return;
+            try { callHost('importBackup') } catch (e) { error(e.message || 'تعذر فتح نافذة الاستيراد'); }
+        }
+
+        function onNativeDataChanged(success) { if (success) { reloadData(); toast('تم دمج وتحديث البيانات بنجاح'); } else toast('تعذر استيراد البيانات'); }
+        function onBackupExported(success) { toast(success ? 'تم إنشاء النسخة الاحتياطية' : 'فشل إنشاء النسخة الاحتياطية', success ? 'success' : 'error'); }
+        function onBackupImported(success) { if (success) { reloadData(); toast('تم استيراد النسخة الاحتياطية بنجاح'); } else toast('فشل استيراد النسخة الاحتياطية', 'error'); }
+        function onReportImageSaved(success) { toast(success ? 'تم حفظ صورة التقرير بنجاح' : 'تعذر حفظ صورة التقرير'); }
+
+        function openScannerModal(fill) {
+            scanFillsForm = fill;
+            if (typeof Html5Qrcode === 'undefined') { error('مكتبة قارئ الباركود غير متاحة'); return; }
+            openModal('scanner-modal');
+            setTimeout(() => {
+                try {
+                    scanner = new Html5Qrcode('scanner-container');
+                    scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 230, height: 130 } }, text => {
+                        const target = scanFillsForm ? 'prod-barcode' : 'search-input'; $(target).value = text;
+                        if (target === 'search-input') { renderProducts(); renderSearchSuggestions(); }
+                        closeScannerModal(); if (!scanFillsForm) renderProducts(); toast('تمت قراءة الباركود');
+                    }, () => {}).catch(e => { console.error(e); error('تعذر تشغيل الكاميرا. تحقق من إذن الكاميرا واتصال HTTPS.'); closeScannerModal(); });
+                } catch (e) { error('تعذر تشغيل الماسح'); closeScannerModal(); }
+            }, 250);
+        }
+
+        function closeScannerModal() {
+            closeModal('scanner-modal');
+            if (scanner) { const active = scanner; scanner = null; active.stop().then(() => active.clear()).catch(() => {}); }
+        }
+
+        function openModal(id) { const node = $(id); if (!node) return; node.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) {
+            if (!$(id)) return;
+            $(id).classList.remove('active');
+            if (!document.querySelector('.overlay.active')) {
+                document.body.style.overflow = '';
+                if (id === 'product-modal' || id === 'category-modal' || id === 'detail-modal' || id === 'report-modal' || id === 'scanner-modal' || id === 'crop-modal') {
+                    document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 0));
+                }
+            }
+        }
+
+        window.handleWindowsBack = function() {
+            const notice = $('notice-overlay');
+            if (notice && notice.classList.contains('show')) { hideNotice(false); return true; }
+
+            const active = document.querySelector('.overlay.active');
+            if (active) {
+                if (active.id === 'scanner-modal') closeScannerModal();
+                else if (active.id === 'backup-page') closeBackupPage();
+                else if (active.id === 'crop-modal') closeCropModal();
+                else closeModal(active.id);
+                return true;
+            }
+
+            const settings = $('settings-menu');
+            if (settings && settings.classList.contains('show')) { closeSettingsMenu(); return true; }
+
+            const suggestions = $('search-suggestions');
+            if (suggestions && suggestions.classList.contains('show')) { suggestions.classList.remove('show'); return true; }
+
+            if (typeof currentCategory !== 'undefined' && (currentCategory !== 'all' || showAllCategory)) {
+                currentCategory = 'all'; showAllCategory = false;
+                renderCategoriesSwiper(); renderProducts();
+                document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === 0));
+                return true;
+            }
+            return false;
+        };
+
+        document.querySelectorAll('.overlay').forEach(overlay => overlay.addEventListener('click', e => {
+            if (e.target === overlay) {
+                if (overlay.id === 'scanner-modal') closeScannerModal();
+                else if (overlay.id === 'crop-modal') closeCropModal();
+                else closeModal(overlay.id);
+            }
+        }));
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                const active = document.querySelector('.overlay.active');
+                if (active) {
+                    if (active.id === 'scanner-modal') closeScannerModal();
+                    else if (active.id === 'crop-modal') closeCropModal();
+                    else closeModal(active.id);
+                }
+            }
+        });
+
+        function reportRows() {
+            return products.map((p, i) => {
+                const usd = number(p.sellUsd) > 0 ? number(p.sellUsd) : number(p.sellSyp) / exchangeRate, syp = number(p.sellSyp) > 0 ? number(p.sellSyp) : Math.round(usd * exchangeRate);
+                return `<tr><td>${i+1}</td><td>${esc(p.name)}</td><td>${esc(p.category||'عام')}</td><td>$${usd.toFixed(2)}</td><td>${money(syp)} ل.س</td></tr>`;
+            }).join('');
+        }
+        function prepareReportContent() {
+            $('report-printable-area').innerHTML = `<h2>تقرير المنتجات والأسعار</h2><p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-SY')} — عدد المنتجات: ${products.length}</p><table><thead><tr><th>#</th><th>المنتج</th><th>الفئة</th><th>السعر بالدولار</th><th>السعر بالليرة</th></tr></thead><tbody>${reportRows()}</tbody></table>`;
+        }
+        function openReportModal() { if (!products.length) { toast('لا توجد منتجات لإنشاء التقرير'); return; } prepareReportContent(); openModal('report-modal'); }
+        function exportReportPdfFromBackup() { if (!products.length) { toast('لا توجد منتجات لإنشاء التقرير'); return; } prepareReportContent(); exportReportAsPdfViaKotlin(); }
+        function exportReportImageFromBackup() { if (!products.length) { toast('لا توجد منتجات لإنشاء التقرير'); return; } prepareReportContent(); closeBackupPage(); openModal('report-modal'); exportReportAsImage(); }
+        
+        function exportReportAsPdfViaKotlin() {
+            if (!products.length) return toast('لا توجد منتجات');
+            if (!inApp() || typeof StoreXHost.printReport !== 'function') { error('وظيفة إنشاء PDF غير متاحة في نسخة Windows الحالية'); return; }
+            const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;direction:rtl;padding:22px;color:#111}h2{text-align:center}p{text-align:center;color:#555;font-size:12px}table{width:100%;border-collapse:collapse;margin-top:18px}th{background:#f5b544}th,td{border:1px solid #999;padding:8px;text-align:center;font-size:12px}tr{page-break-inside:avoid}</style></head><body><h2>تقرير المنتجات والأسعار</h2><p>عدد المنتجات: ${products.length}</p><table><thead><tr><th>#</th><th>المنتج</th><th>الفئة</th><th>السعر بالدولار</th><th>السعر بالليرة السورية</th></tr></thead><tbody>${reportRows()}</tbody></table></body></html>`;
+            try { callHost('printReport', html); toast('جاري تجهيز تقرير PDF'); } catch (e) { error('تعذر إنشاء PDF: ' + e.message); }
+        }
+
+        async function exportReportAsImage() {
+            if (!products.length) return toast('لا توجد منتجات');
+            if (typeof html2canvas === 'undefined') return error('مكتبة تحويل التقرير إلى صورة غير متاحة');
+            try {
+                toast('جاري تجهيز الصورة...');
+                const report = $('report-printable-area');
+                const oldHeight = report.style.maxHeight, oldOverflow = report.style.overflow;
+                report.style.maxHeight = 'none'; report.style.overflow = 'visible';
+                let canvas;
+                try { canvas = await html2canvas(report, { scale: 2, backgroundColor: '#ffffff', useCORS: true, windowWidth: report.scrollWidth }); }
+                finally { report.style.maxHeight = oldHeight; report.style.overflow = oldOverflow; }
+                const data = canvas.toDataURL('image/png');
+                if (inApp() && typeof StoreXHost.saveReportImage === 'function') { callHost('saveReportImage', data); toast('تم إرسال الصورة إلى التطبيق للحفظ'); return; }
+                const a = document.createElement('a'); a.href = data; a.download = 'store_report_' + new Date().toISOString().slice(0, 10) + '.png'; a.click(); toast('تم تنزيل صورة التقرير');
+            } catch (e) { console.error(e); error('تعذر تصدير التقرير كصورة'); }
+        }
+    </script>
+</body>
+</html>

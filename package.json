@@ -1,0 +1,52 @@
+{
+  "name": "storex-windows",
+  "version": "1.0.0",
+  "description": "StoreX desktop inventory and product management application",
+  "main": "src/main.js",
+  "author": "StoreX",
+  "license": "UNLICENSED",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron .",
+    "build:win": "electron-builder --win nsis",
+    "build:dir": "electron-builder --win dir"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "better-sqlite3": "^11.8.1"
+  },
+  "devDependencies": {
+    "electron": "^34.3.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.storex.desktop",
+    "productName": "StoreX",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "artifactName": "StoreX-Setup-${version}-${arch}.${ext}"
+  }
+}
